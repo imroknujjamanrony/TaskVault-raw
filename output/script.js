@@ -1,33 +1,56 @@
 "use strict";
+// Get the form element
 const taskForm = document.getElementById('task-form');
+// Listen for form submission
 taskForm.addEventListener('submit', function (e) {
     e.preventDefault();
+    // Get form inputs
     const titleInput = document.getElementById('task-title');
-    const title = titleInput.value.trim();
     const descInput = document.getElementById('task-desc');
-    const description = descInput.value.trim();
     const statusSelect = document.getElementById('task-status');
+    // Trim input values
+    const title = titleInput.value.trim();
+    const description = descInput.value.trim();
     const status = statusSelect.value.trim();
+    // Basic validation
+    if (!title) {
+        alert('Task title is required!');
+        return;
+    }
+    if (!description) {
+        alert('Task description is required!');
+        return;
+    }
+    if (!status || status === 'Select') {
+        alert('Please choose a valid task status!');
+        return;
+    }
+    // Create new task object
     const newTask = { title, description, status };
-    // ✅ Try to parse existing data safely
+    // Retrieve existing tasks from localStorage
     let existingTasks = [];
     try {
-        const stored = localStorage.getItem('taskData');
-        existingTasks = stored ? JSON.parse(stored) : [];
-        if (!Array.isArray(existingTasks)) {
-            existingTasks = []; // Fallback in case it's not an array
+        const storedTasks = localStorage.getItem('taskData');
+        const parsedTasks = storedTasks ? JSON.parse(storedTasks) : [];
+        // Ensure the parsed data is an array
+        if (Array.isArray(parsedTasks)) {
+            existingTasks = parsedTasks;
         }
     }
-    catch (err) {
-        console.error('Error parsing localStorage data:', err);
+    catch (error) {
+        console.error('Failed to parse localStorage data:', error);
         existingTasks = [];
     }
+    // Add new task to the array
     existingTasks.push(newTask);
+    // Save the updated array to localStorage
     localStorage.setItem('taskData', JSON.stringify(existingTasks));
     console.log('Task Saved:', newTask);
+    // Reset the form
     taskForm.reset();
+    // Display the new task in the task list
     const taskList = document.getElementById('task-list');
     const newTaskItem = document.createElement('li');
-    newTaskItem.textContent = `{newTask.title} - ${newTask.description} (${newTask.status})`;
+    newTaskItem.textContent = `${newTask.title} - ${newTask.description} (${newTask.status})`;
     taskList.appendChild(newTaskItem);
 });
